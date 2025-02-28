@@ -6,7 +6,7 @@ import PostCard from './PostCard';
 
 export interface Post {
     id: string;
-    image_url: string;
+    image_urls: string;
     description: string;
     user_email: string;
 }
@@ -24,6 +24,7 @@ export default function Feed({ session }: FeedProps) {
             console.error('게시물 불러오기 실패:', error.message);
         } else {
             setPosts(data);
+            console.log(data, '?data');
         }
     };
 
