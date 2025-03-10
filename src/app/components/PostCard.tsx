@@ -1,24 +1,51 @@
-'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
-import { Post } from './Feed';
+import Image from 'next/image';
+import { useSession } from '../SupabaseProvider';
 
 interface PostCardProps {
     post: Post;
-    session: any;
     onPostChange: () => void;
 }
+interface Post {
+    id: string;
+    description: string;
+    user_email: string;
+    image_urls: string | string[];
+}
 
-export default function PostCard({ post, session, onPostChange }: PostCardProps) {
+export default function PostCard({ post, onPostChange }: PostCardProps) {
     const [editing, setEditing] = useState(false);
     const [editingDescription, setEditingDescription] = useState(post.description);
     const router = useRouter();
+    const { session } = useSession();
 
     const handleDelete = async () => {
         if (!confirm('정말로 삭제하시겠습니까?')) return;
 
-        const { error } = await supabase.from('posts').delete().match({ id: post.id, user_email: session.user.email });
+        let imageUrls: string[] = [];
+        if (typeof post.image_urls === 'string') {
+            try {
+                imageUrls = JSON.parse(post.image_urls);
+            } catch (error) {
+                console.error('이미지 URL JSON 파싱 오류:', error);
+            }
+        } else if (Array.isArray(post.image_urls)) {
+            imageUrls = post.image_urls;
+        }
+
+        for (const imageUrl of imageUrls) {
+            const storagePath = imageUrl.split('/photos/')[1];
+            if (storagePath) {
+                const { error: storageError } = await supabase.storage.from('photos').remove([storagePath]);
+                if (storageError) {
+                    console.error('이미지 삭제 오류:', storageError.message);
+                }
+            }
+        }
+
+        const { error } = await supabase.from('posts').delete().match({ id: post.id, user_email: session?.user.email });
 
         if (error) {
             console.error('삭제 오류:', error.message);
@@ -44,32 +71,31 @@ export default function PostCard({ post, session, onPostChange }: PostCardProps)
         router.push(`/posts/${post.id}`);
     };
 
-    // 이미지 URL을 안전하게 배열로 변환
     let imageUrls: string[] = [];
-
     if (typeof post.image_urls === 'string') {
         if (post.image_urls.startsWith('[') && post.image_urls.endsWith(']')) {
-            // JSON 배열 형태인 경우 파싱
             try {
                 imageUrls = JSON.parse(post.image_urls);
             } catch (error) {
                 console.error('이미지 URL JSON 파싱 오류:', error);
             }
         } else {
-            // 쉼표로 구분된 URL 목록일 경우 분할
             imageUrls = post.image_urls.split(',').map((url) => url.trim());
         }
     } else if (Array.isArray(post.image_urls)) {
         imageUrls = post.image_urls;
     }
 
-    const firstImage = imageUrls.length > 0 ? imageUrls[0] : '/default-image.jpg';
+    // 이미지 URL이 없거나 빈 값일 때 처리
+    const firstImage = imageUrls.length > 0 && imageUrls[0] ? imageUrls[0] : '/default-image.jpg';
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <img
-                src={firstImage}
+            <Image
+                src={firstImage} // 빈 문자열이나 null을 기본 이미지로 처리
                 alt="게시물"
+                width={640} // width와 height 설정
+                height={256}
                 className="w-full h-64 object-cover cursor-pointer"
                 onClick={handleImageClick}
             />

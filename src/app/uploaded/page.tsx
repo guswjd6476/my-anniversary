@@ -2,6 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
+import Image from 'next/image';
+
+// Import the User type from supabase.auth
+import { User as SupabaseUser } from '@supabase/auth-js';
 
 export default function UploadForm() {
     const [files, setFiles] = useState<File[]>([]);
@@ -9,22 +13,22 @@ export default function UploadForm() {
     const [description, setDescription] = useState('');
     const [eventDate, setEventDate] = useState('');
     const [uploading, setUploading] = useState(false);
-    const [user, setUser] = useState<any>(null); // 사용자 상태 관리
+    const [user, setUser] = useState<SupabaseUser | null>(null); // Use the imported Supabase User type
     const router = useRouter();
 
     useEffect(() => {
         const fetchSession = async () => {
-            const session = await supabase.auth.getSession(); // 비동기적으로 세션 가져오기
-            setUser(session.data?.session?.user); // 세션이 있을 경우 user 업데이트
+            const session = await supabase.auth.getSession(); // Get the session
+            setUser(session.data?.session?.user || null); // Update user
 
-            // 인증 상태가 변경될 때마다 사용자 정보를 업데이트
+            // Subscribe to authentication state changes
             const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-                setUser(session?.user); // 인증 상태 변화에 따라 업데이트
+                setUser(session?.user || null); // Update on auth state change
             });
 
-            // 구독 취소 함수
+            // Cleanup function to unsubscribe
             return () => {
-                authListener?.subscription.unsubscribe(); // 구독 취소
+                authListener?.subscription.unsubscribe();
             };
         };
 
@@ -39,7 +43,7 @@ export default function UploadForm() {
 
     const onUploadSuccess = () => {
         alert('업로드 성공!');
-        router.push('/'); // 첫 페이지로 이동
+        router.push('/'); // Redirect to the homepage
     };
 
     const handleUpload = async () => {
@@ -74,7 +78,8 @@ export default function UploadForm() {
                     image_urls: uploadedImageUrls,
                     description,
                     event_date: eventDate,
-                    user_email: user?.email, // Supabase 인증 사용
+                    user_email: user?.email, // Use the `email` from Supabase's `User` type
+                    user_id: user?.id, // Use the `id` from Supabase's `User` type
                 },
             ]);
             if (insertError) throw insertError;
@@ -83,10 +88,16 @@ export default function UploadForm() {
             setPreviewUrls([]);
             setDescription('');
             setEventDate('');
-            onUploadSuccess(); // 업로드 성공 후 실행
-        } catch (error: any) {
+            onUploadSuccess();
+        } catch (error: unknown) {
             console.error('Upload error:', error);
-            alert('업로드 실패! 다시 시도해주세요.');
+
+            // Handle error if it is an instance of Error
+            if (error instanceof Error) {
+                alert(`업로드 실패! ${error.message}`);
+            } else {
+                alert('업로드 실패! 다시 시도해주세요.');
+            }
         } finally {
             setUploading(false);
         }
@@ -105,7 +116,14 @@ export default function UploadForm() {
             ></textarea>
             <div className="mb-4 flex overflow-x-scroll space-x-2">
                 {previewUrls.map((url, index) => (
-                    <img key={index} src={url} alt="미리보기" className="w-32 h-32 object-cover rounded-lg" />
+                    <Image
+                        key={index}
+                        src={url}
+                        alt="미리보기"
+                        width={128}
+                        height={128}
+                        className="object-cover rounded-lg"
+                    />
                 ))}
             </div>
             <div className="flex space-x-4">
