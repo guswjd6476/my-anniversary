@@ -77,17 +77,16 @@ export default function Feed() {
     };
 
     if (!session) {
-        return <p>로그인하지 않았습니다. 로그인 후 다시 시도하세요.</p>;
+        return <p className="text-center text-gray-500 mt-10">로그인하지 않았습니다. 로그인 후 다시 시도하세요.</p>;
     }
 
     return (
-        <div className="flex">
-            <div className="w-3/4 p-4">
-                <h2 className="text-xl font-bold mb-4">친구들의 게시물</h2>
+        <div className="flex justify-center">
+            <div className="w-full max-w-2xl p-4">
                 {posts.length === 0 ? (
-                    <p>게시물이 없습니다.</p>
+                    <p className="text-center text-gray-400">게시물이 없습니다.</p>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="space-y-6">
                         {posts.map((post) => (
                             <PostCard key={post.id} post={post} onPostChange={handlePostChange} />
                         ))}

@@ -28,20 +28,17 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
             <body>
-                {session && (
+                {session ? (
                     <>
-                        <Header
-                            showUpload={true}
-                            onToggleUpload={() => router.push('/uploaded')}
-                            onLogout={handleLogout}
-                        />
-                        <div className="flex">
+                        <Header onToggleUpload={() => router.push('/uploaded')} onLogout={handleLogout} />
+                        <div className="flex mt-12">
                             <LeftNavigation />
                             <div className="w-full">{children}</div>
                         </div>
                     </>
+                ) : (
+                    <div className="w-full">{children}</div>
                 )}
-                {!session && <div className="w-full">{children}</div>}
             </body>
         </html>
     );

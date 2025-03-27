@@ -1,44 +1,57 @@
 'use client';
 import React from 'react';
-import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { Home, PlusCircle, User, LogOut, Settings } from 'lucide-react';
+import { useSession } from '../SupabaseProvider';
 
 interface HeaderProps {
     onToggleUpload: () => void;
     onLogout: () => void;
-    showUpload: boolean;
 }
 
 export default function Header({ onToggleUpload, onLogout }: HeaderProps) {
-    const pathname = usePathname();
-    const isProfilePage = pathname.startsWith('/profile/');
     const router = useRouter();
-
-    const onEditProfile = () => {
-        router.push('/profileedit');
-    };
+    const { session } = useSession();
     return (
-        <header className="flex justify-between items-center p-4 bg-white shadow-md">
-            <h1 className="text-xl font-bold">내기념일공유</h1>
-            <div className="flex items-center space-x-4">
-                {isProfilePage && (
-                    <button
-                        onClick={onEditProfile}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                    >
-                        프로필 수정
+        <>
+            {/* 데스크탑 헤더 */}
+            <header className="hidden md:flex justify-between items-center px-6 py-4 bg-white shadow-md border-b fixed w-full top-0 z-50">
+                <h1 className="text-2xl font-bold cursor-pointer tracking-wide" onClick={() => router.push('/')}>
+                    📸 Anniversary
+                </h1>
+                <div className="flex items-center space-x-6">
+                    <button onClick={() => router.push('/')} className="hover:text-blue-500">
+                        <Home size={28} />
                     </button>
-                )}
+                    {session && (
+                        <button onClick={() => router.push('/profileedit')} className="hover:text-green-500">
+                            <Settings size={28} />
+                        </button>
+                    )}
+                    <button onClick={onLogout} className="hover:text-red-500">
+                        <LogOut size={28} />
+                    </button>
+                </div>
+            </header>
+
+            {/* 모바일 하단 네비게이션 */}
+            <nav className="md:hidden fixed bottom-0 w-full bg-white shadow-md border-t flex justify-around py-3 z-50">
+                <button onClick={() => router.push('/')} className="hover:text-blue-500">
+                    <Home size={28} />
+                </button>
                 <button
                     onClick={onToggleUpload}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-all"
                 >
-                    작성
+                    <PlusCircle size={32} />
                 </button>
-                <button onClick={onLogout} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-                    로그아웃
+                <button onClick={() => router.push('/profile')} className="hover:text-blue-500">
+                    <User size={28} />
                 </button>
-            </div>
-        </header>
+                <button onClick={onLogout} className="hover:text-red-500">
+                    <LogOut size={28} />
+                </button>
+            </nav>
+        </>
     );
 }

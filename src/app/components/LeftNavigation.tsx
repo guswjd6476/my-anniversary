@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useSession } from '../SupabaseProvider';
 import { useRouter } from 'next/navigation'; // useRouter 추가
 import Image from 'next/image'; // 추가
+
 interface Friend {
     user_id_1: string;
     user_id_2: string;
@@ -74,7 +75,7 @@ export default function LeftNavigation() {
 
                 // null 값이 포함되지 않도록 필터링
                 setFriends(
-                    friendDetails.filter(Boolean) as {
+                    friendDetails.filter((friend) => friend !== null) as {
                         id: string;
                         email: string;
                         profile_image: string;
@@ -162,49 +163,44 @@ export default function LeftNavigation() {
 
     console.log(friends, '?friends?');
     return (
-        <div className="w-1/4 p-4 bg-gray-100 overflow-auto shadow-md">
-            <div className="flex justify-between mb-4">
-                <button onClick={() => router.push('/')} className="px-4 py-2 bg-blue-500 text-white rounded">
-                    홈으로 돌아가기
-                </button>
-            </div>
+        <div className="w-1/4 p-4 bg-white shadow-lg rounded-xl">
             <input
                 type="text"
                 placeholder="친구 검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="p-2 border rounded mb-4"
+                className="p-2 border rounded-lg mb-6 w-full text-gray-700 bg-gray-100 focus:outline-none"
             />
 
-            <h3 className="font-bold mb-2">친구 목록</h3>
+            <h3 className="font-semibold text-xl mb-3 text-gray-800">친구 목록</h3>
             <ul>
                 {friends.length > 0 ? (
                     friends.map((friend) => (
                         <li
                             key={friend.id}
-                            className="p-2 border-b cursor-pointer hover:bg-gray-200 flex items-center"
+                            className="p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center space-x-3 transition-colors"
                             onClick={() => handleNavigateToFeed(friend.email)} // 친구 클릭 시 피드로 이동
                         >
                             {friend.profile_image ? (
                                 <Image
                                     src={friend.profile_image}
                                     alt={friend.nickname}
-                                    width={32}
-                                    height={32}
-                                    className="w-8 h-8 rounded-full mr-2"
+                                    width={36}
+                                    height={36}
+                                    className="w-9 h-9 rounded-full"
                                 />
                             ) : (
-                                <div className="w-8 h-8 rounded-full bg-gray-300 mr-2" />
+                                <div className="w-9 h-9 rounded-full bg-gray-300" />
                             )}
-                            {friend.nickname} {/* 닉네임 표시 */}
+                            <span className="text-gray-800 font-medium">{friend.nickname}</span>
                         </li>
                     ))
                 ) : (
-                    <li className="text-gray-500">친구가 없습니다.</li>
+                    <li className="text-gray-400">친구가 없습니다.</li>
                 )}
             </ul>
 
-            <h3 className="font-bold mt-4 mb-2">추천 친구</h3>
+            <h3 className="font-semibold text-xl mt-6 mb-3 text-gray-800">추천 친구</h3>
             <ul>
                 {allUsers
                     .filter(
@@ -214,24 +210,27 @@ export default function LeftNavigation() {
                             !pendingRequests.some((req) => req.user_id_2 === user.id && req.user_id_1 === userId)
                     )
                     .map((user) => (
-                        <li key={user.id} className="p-2 border-b flex justify-between items-center">
-                            <div className="flex items-center">
+                        <li
+                            key={user.id}
+                            className="p-3 border-b flex justify-between items-center hover:bg-gray-50 transition-colors"
+                        >
+                            <div className="flex items-center space-x-3">
                                 {user.profile_image ? (
                                     <Image
                                         src={user.profile_image}
                                         alt={user.nickname}
-                                        width={32}
-                                        height={32}
-                                        className="w-8 h-8 rounded-full mr-2"
+                                        width={36}
+                                        height={36}
+                                        className="w-9 h-9 rounded-full"
                                     />
                                 ) : (
-                                    <div className="w-8 h-8 rounded-full bg-gray-300 mr-2" />
+                                    <div className="w-9 h-9 rounded-full bg-gray-300" />
                                 )}
-                                <span>{user.nickname}</span>
+                                <span className="text-gray-800">{user.nickname}</span>
                             </div>
                             <button
                                 onClick={() => handleAddFollow(user.id)}
-                                className="ml-2 bg-blue-500 text-white rounded px-2 py-1 text-sm"
+                                className="ml-3 bg-blue-500 text-white rounded-lg px-4 py-1 text-sm hover:bg-blue-600 focus:outline-none"
                             >
                                 친구 추가
                             </button>
@@ -242,23 +241,26 @@ export default function LeftNavigation() {
                         pendingRequests.some((req) => req.user_id_2 === user.id && req.user_id_1 === userId)
                     )
                     .map((user) => (
-                        <li key={user.id} className="p-2 border-b flex justify-between items-center">
-                            <div className="flex items-center">
+                        <li
+                            key={user.id}
+                            className="p-3 border-b flex justify-between items-center hover:bg-gray-50 transition-colors"
+                        >
+                            <div className="flex items-center space-x-3">
                                 {user.profile_image ? (
                                     <Image
                                         src={user.profile_image}
                                         alt={user.nickname}
-                                        width={32}
-                                        height={32}
-                                        className="w-8 h-8 rounded-full mr-2"
+                                        width={36}
+                                        height={36}
+                                        className="w-9 h-9 rounded-full"
                                     />
                                 ) : (
-                                    <div className="w-8 h-8 rounded-full bg-gray-300 mr-2" />
+                                    <div className="w-9 h-9 rounded-full bg-gray-300" />
                                 )}
-                                <span>{user.nickname}</span>
+                                <span className="text-gray-800">{user.nickname}</span>
                             </div>
                             <button
-                                className="ml-2 bg-gray-400 text-white rounded px-2 py-1 text-sm cursor-default"
+                                className="ml-3 bg-gray-400 text-white rounded-lg px-4 py-1 text-sm cursor-not-allowed"
                                 disabled
                             >
                                 대기 중
@@ -267,15 +269,17 @@ export default function LeftNavigation() {
                     ))}
             </ul>
 
-            <h3 className="font-bold mt-4 mb-2">친구 요청</h3>
+            <h3 className="font-semibold text-xl mt-6 mb-3 text-gray-800">친구 요청</h3>
             <ul>
                 {pendingRequests.length > 0 ? (
                     pendingRequests
                         .filter((req) => req.user_id_2 === userId) // 받은 요청만 표시
                         .map((request) => (
-                            <li key={request.user_id_1} className="p-2 border-b flex justify-between items-center">
-                                {/* 이메일이 있는 경우 표시 */}
-                                <span>
+                            <li
+                                key={request.user_id_1}
+                                className="p-3 border-b flex justify-between items-center hover:bg-gray-50 transition-colors"
+                            >
+                                <span className="text-gray-600">
                                     {
                                         // 이메일을 직접 가져와서 표시합니다.
                                         allUsers.find((user) => user.id === request.user_id_1)?.email || '이메일 없음'
@@ -283,21 +287,21 @@ export default function LeftNavigation() {
                                 </span>
                                 <button
                                     onClick={() => handleAcceptRequest(request)}
-                                    className="ml-2 bg-green-500 text-white rounded px-2 py-1 text-sm"
+                                    className="ml-3 bg-green-500 text-white rounded-lg px-4 py-1 text-sm hover:bg-green-600 focus:outline-none"
                                 >
                                     수락
                                 </button>
                             </li>
                         ))
                 ) : (
-                    <li className="text-gray-500">받은 친구 요청이 없습니다.</li>
+                    <li className="text-gray-400">받은 친구 요청이 없습니다.</li>
                 )}
             </ul>
             {session?.user?.email && (
-                <div className="flex justify-between mb-4">
+                <div className="mt-6">
                     <button
                         onClick={() => router.push(`/profile/${session.user.email}`)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none"
                     >
                         내피드
                     </button>

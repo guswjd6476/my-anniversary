@@ -90,13 +90,14 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
     const firstImage = imageUrls.length > 0 && imageUrls[0] ? imageUrls[0] : '/default-image.jpg';
 
     return (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
+            {/* 이미지 영역 */}
             <Image
                 src={firstImage} // 빈 문자열이나 null을 기본 이미지로 처리
                 alt="게시물"
                 width={640} // width와 height 설정
-                height={256}
-                className="w-full h-64 object-cover cursor-pointer"
+                height={360}
+                className="w-full h-60 object-cover cursor-pointer"
                 onClick={handleImageClick}
             />
             <div className="p-4">
@@ -105,10 +106,14 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
                         <textarea
                             value={editingDescription}
                             onChange={(e) => setEditingDescription(e.target.value)}
-                            className="w-full border p-2 rounded mb-2"
+                            className="w-full border border-gray-300 rounded-lg p-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows={3}
                         />
-                        <div className="flex space-x-2">
-                            <button onClick={handleUpdate} className="px-3 py-1 bg-green-500 text-white rounded">
+                        <div className="flex space-x-4">
+                            <button
+                                onClick={handleUpdate}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm transition hover:bg-blue-500"
+                            >
                                 수정 완료
                             </button>
                             <button
@@ -116,7 +121,7 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
                                     setEditing(false);
                                     setEditingDescription(post.description);
                                 }}
-                                className="px-3 py-1 bg-gray-500 text-white rounded"
+                                className="px-4 py-2 bg-gray-400 text-white rounded-full text-sm transition hover:bg-gray-300"
                             >
                                 취소
                             </button>
@@ -124,17 +129,20 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
                     </>
                 ) : (
                     <>
-                        <p className="text-gray-700">{post.description}</p>
-                        <p className="text-sm text-gray-500 mt-2">작성자: {post.user_email}</p>
+                        <p className="text-gray-800 text-sm">{post.description}</p>
+                        <p className="text-xs text-gray-500 mt-2">{`작성자: ${post.user_email}`}</p>
                         {session?.user.email === post.user_email && (
-                            <div className="flex space-x-2 mt-2">
+                            <div className="flex space-x-4 mt-4">
                                 <button
                                     onClick={() => setEditing(true)}
-                                    className="px-3 py-1 bg-yellow-500 text-white rounded"
+                                    className="px-4 py-2 bg-yellow-500 text-white rounded-full text-sm transition hover:bg-yellow-400"
                                 >
                                     수정
                                 </button>
-                                <button onClick={handleDelete} className="px-3 py-1 bg-red-500 text-white rounded">
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-full text-sm transition hover:bg-red-500"
+                                >
                                     삭제
                                 </button>
                             </div>
