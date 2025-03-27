@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 import Image from 'next/image';
+import { Upload, Calendar, ArrowLeft } from 'lucide-react';
 
 // Import the User type from supabase.auth
 import { User as SupabaseUser } from '@supabase/auth-js';
@@ -13,20 +14,18 @@ export default function UploadForm() {
     const [description, setDescription] = useState('');
     const [eventDate, setEventDate] = useState('');
     const [uploading, setUploading] = useState(false);
-    const [user, setUser] = useState<SupabaseUser | null>(null); // Use the imported Supabase User type
+    const [user, setUser] = useState<SupabaseUser | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         const fetchSession = async () => {
-            const session = await supabase.auth.getSession(); // Get the session
-            setUser(session.data?.session?.user || null); // Update user
+            const session = await supabase.auth.getSession();
+            setUser(session.data?.session?.user || null);
 
-            // Subscribe to authentication state changes
             const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-                setUser(session?.user || null); // Update on auth state change
+                setUser(session?.user || null);
             });
 
-            // Cleanup function to unsubscribe
             return () => {
                 authListener?.subscription.unsubscribe();
             };
@@ -43,7 +42,7 @@ export default function UploadForm() {
 
     const onUploadSuccess = () => {
         alert('업로드 성공!');
-        router.push('/'); // Redirect to the homepage
+        router.push('/');
     };
 
     const handleUpload = async () => {
@@ -78,8 +77,8 @@ export default function UploadForm() {
                     image_urls: uploadedImageUrls,
                     description,
                     event_date: eventDate,
-                    user_email: user?.email, // Use the `email` from Supabase's `User` type
-                    user_id: user?.id, // Use the `id` from Supabase's `User` type
+                    user_email: user?.email,
+                    user_id: user?.id,
                 },
             ]);
             if (insertError) throw insertError;
@@ -92,7 +91,6 @@ export default function UploadForm() {
         } catch (error: unknown) {
             console.error('Upload error:', error);
 
-            // Handle error if it is an instance of Error
             if (error instanceof Error) {
                 alert(`업로드 실패! ${error.message}`);
             } else {
@@ -104,40 +102,53 @@ export default function UploadForm() {
     };
 
     return (
-        <div className="max-w-lg mx-auto my-4 bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">사진 + 설명 + 날짜 업로드</h2>
-            <input type="file" accept="image/*" multiple onChange={handleFileChange} className="mb-2" />
-            <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className="mb-2" />
+        <div className="max-w-lg mx-auto my-8 bg-white p-6 rounded-xl shadow-lg">
+            <label className="flex items-center justify-center w-full px-4 py-3 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition">
+                <Upload size={20} className="mr-2" />
+                사진 선택하기
+                <input type="file" accept="image/*" multiple onChange={handleFileChange} className="hidden" />
+            </label>
+
+            <div className="relative mt-4">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                    type="date"
+                    value={eventDate}
+                    onChange={(e) => setEventDate(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+
             <textarea
-                className="w-full border p-2 rounded mb-4"
+                className="w-full border p-3 rounded-lg mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="사진 설명을 입력하세요..."
-                value={description || ''}
+                value={description}
                 onChange={(e) => setDescription(e.target.value)}
             ></textarea>
-            <div className="mb-4 flex overflow-x-scroll space-x-2">
-                {previewUrls.map((url, index) => (
-                    <Image
-                        key={index}
-                        src={url}
-                        alt="미리보기"
-                        width={128}
-                        height={128}
-                        className="object-cover rounded-lg"
-                    />
-                ))}
-            </div>
-            <div className="flex space-x-4">
+
+            {previewUrls.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                    {previewUrls.map((url, index) => (
+                        <div key={index} className="relative w-full h-24 overflow-hidden rounded-lg border">
+                            <Image src={url} alt="미리보기" layout="fill" objectFit="cover" className="rounded-lg" />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <div className="flex space-x-4 mt-6">
                 <button
                     onClick={handleUpload}
                     disabled={uploading}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400"
+                    className="flex items-center justify-center w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition disabled:bg-gray-400"
                 >
-                    {uploading ? '업로드 중...' : '업로드'}
+                    {uploading ? '업로드 중...' : '🚀 업로드'}
                 </button>
                 <button
                     onClick={() => router.back()}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                    className="flex items-center justify-center w-full px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
                 >
+                    <ArrowLeft size={20} className="mr-2" />
                     뒤로가기
                 </button>
             </div>

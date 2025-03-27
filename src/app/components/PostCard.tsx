@@ -86,16 +86,14 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
         imageUrls = post.image_urls;
     }
 
-    // 이미지 URL이 없거나 빈 값일 때 처리
     const firstImage = imageUrls.length > 0 && imageUrls[0] ? imageUrls[0] : '/default-image.jpg';
 
     return (
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
-            {/* 이미지 영역 */}
             <Image
-                src={firstImage} // 빈 문자열이나 null을 기본 이미지로 처리
+                src={firstImage}
                 alt="게시물"
-                width={640} // width와 height 설정
+                width={640}
                 height={360}
                 className="w-full h-60 object-cover cursor-pointer"
                 onClick={handleImageClick}
