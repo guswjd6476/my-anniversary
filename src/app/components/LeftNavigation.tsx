@@ -161,9 +161,8 @@ export default function LeftNavigation() {
         router.push(`/profile/${friendId}`);
     };
 
-    console.log(friends, '?friends?');
     return (
-        <div className="w-1/4 p-4 bg-white shadow-lg rounded-xl">
+        <div className="hidden md:block w-1/4 p-4 bg-white shadow-lg rounded-xl mt-8">
             <input
                 type="text"
                 placeholder="친구 검색"

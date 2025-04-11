@@ -15,11 +15,14 @@ export default function Header({ onToggleUpload, onLogout }: HeaderProps) {
 
     return (
         <>
-            <header className="hidden md:flex justify-between items-center px-6 py-4 bg-white shadow-md border-b fixed w-full top-0 z-50">
+            {/* 공통 헤더 (로고만, 모바일/데스크탑 공통) */}
+            <header className="flex justify-between items-center px-6 py-4 bg-white shadow-md border-b fixed w-full top-0 z-50">
                 <h1 className="text-2xl font-bold cursor-pointer tracking-wide" onClick={() => router.push('/')}>
                     📸 Anniversary
                 </h1>
-                <div className="flex items-center space-x-6">
+
+                {/* 데스크탑 메뉴 */}
+                <div className="hidden md:flex items-center space-x-6">
                     <button onClick={() => router.push('/')} className="hover:text-blue-500 transition">
                         <Home size={28} />
                     </button>
@@ -37,6 +40,7 @@ export default function Header({ onToggleUpload, onLogout }: HeaderProps) {
                 </div>
             </header>
 
+            {/* 모바일 하단 메뉴 */}
             <nav className="md:hidden fixed bottom-0 w-full bg-white shadow-md border-t flex justify-around py-3 z-50">
                 <button onClick={() => router.push('/')} className="hover:text-blue-500 transition">
                     <Home size={28} />
@@ -47,7 +51,7 @@ export default function Header({ onToggleUpload, onLogout }: HeaderProps) {
                 >
                     <PlusCircle size={32} />
                 </button>
-                <button onClick={() => router.push('/profile')} className="hover:text-blue-500 transition">
+                <button onClick={() => router.push('/profileedit')} className="hover:text-blue-500 transition">
                     <User size={28} />
                 </button>
                 <button onClick={onLogout} className="hover:text-red-500 transition">

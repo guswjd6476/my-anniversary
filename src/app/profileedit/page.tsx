@@ -14,6 +14,7 @@ export default function ProfileEditForm() {
     const [nickname, setNickname] = useState('');
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+    const [currentProfileImage, setCurrentProfileImage] = useState<string>(''); // ✅ 현재 저장된 이미지
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -34,6 +35,9 @@ export default function ProfileEditForm() {
 
                 if (data) {
                     setNickname(data.nickname || '');
+                    if (data.profile_image) {
+                        setCurrentProfileImage(data.profile_image); // ✅ 이미지 상태 저장
+                    }
                 }
             } catch (error) {
                 console.error('예기치 않은 오류 발생:', error);
@@ -60,7 +64,7 @@ export default function ProfileEditForm() {
     };
 
     const uploadImages = async () => {
-        if (!userId || selectedImages.length === 0) return ''; // Return empty string if no images
+        if (!userId || selectedImages.length === 0) return currentProfileImage;
 
         setLoading(true);
         try {
@@ -77,11 +81,11 @@ export default function ProfileEditForm() {
                 })
             );
 
-            return uploadedUrls[0] || ''; // Return first image URL
+            return uploadedUrls[0] || currentProfileImage;
         } catch (error) {
             console.error('이미지 업로드 오류:', error);
             alert('이미지 업로드 중 오류가 발생했습니다.');
-            return ''; // Return empty string on error
+            return currentProfileImage;
         } finally {
             setLoading(false);
         }
@@ -96,10 +100,11 @@ export default function ProfileEditForm() {
 
         setLoading(true);
         try {
-            const uploadedImageUrls = await uploadImages();
+            const uploadedImageUrl = await uploadImages();
+
             const { error } = await supabase
                 .from('users')
-                .update({ nickname, profile_image: uploadedImageUrls })
+                .update({ nickname, profile_image: uploadedImageUrl })
                 .eq('id', userId);
 
             if (error) throw error;
@@ -136,13 +141,21 @@ export default function ProfileEditForm() {
                                   <Image
                                       key={index}
                                       src={url}
-                                      alt="프로필 미리보기"
+                                      alt="새 프로필 미리보기"
                                       width={80}
                                       height={80}
                                       className="rounded-full"
                                   />
                               ))
-                            : null}
+                            : currentProfileImage && (
+                                  <Image
+                                      src={currentProfileImage}
+                                      alt="현재 프로필 이미지"
+                                      width={80}
+                                      height={80}
+                                      className="rounded-full"
+                                  />
+                              )}
                     </div>
                     <input type="file" accept="image/*" multiple onChange={handleImageChange} className="mt-1" />
                 </div>

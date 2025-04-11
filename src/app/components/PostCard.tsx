@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../lib/supabase';
 import Image from 'next/image';
@@ -8,6 +10,7 @@ interface PostCardProps {
     post: Post;
     onPostChange: () => void;
 }
+
 interface Post {
     id: string;
     description: string;
@@ -18,8 +21,31 @@ interface Post {
 export default function PostCard({ post, onPostChange }: PostCardProps) {
     const [editing, setEditing] = useState(false);
     const [editingDescription, setEditingDescription] = useState(post.description);
+    const [nickname, setNickname] = useState<string | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
     const router = useRouter();
     const { session } = useSession();
+
+    // 🔍 작성자 정보 불러오기
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            const { data, error } = await supabase
+                .from('users')
+                .select('nickname, profile_image')
+                .eq('email', post.user_email)
+                .single();
+
+            if (error) {
+                console.error('유저 정보 가져오기 실패:', error.message);
+            } else {
+                setNickname(data.nickname);
+                setAvatarUrl(data.profile_image);
+            }
+        };
+
+        fetchUserInfo();
+    }, [post.user_email]);
 
     const handleDelete = async () => {
         if (!confirm('정말로 삭제하시겠습니까?')) return;
@@ -48,7 +74,6 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
         const { error } = await supabase.from('posts').delete().match({ id: post.id, user_email: session?.user.email });
 
         if (error) {
-            console.error('삭제 오류:', error.message);
             alert('삭제 실패: ' + error.message);
         } else {
             alert('삭제 성공!');
@@ -58,6 +83,7 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
 
     const handleUpdate = async () => {
         const { error } = await supabase.from('posts').update({ description: editingDescription }).eq('id', post.id);
+
         if (error) {
             alert('수정 실패: ' + error.message);
         } else {
@@ -73,13 +99,9 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
 
     let imageUrls: string[] = [];
     if (typeof post.image_urls === 'string') {
-        if (post.image_urls.startsWith('[') && post.image_urls.endsWith(']')) {
-            try {
-                imageUrls = JSON.parse(post.image_urls);
-            } catch (error) {
-                console.error('이미지 URL JSON 파싱 오류:', error);
-            }
-        } else {
+        try {
+            imageUrls = JSON.parse(post.image_urls);
+        } catch {
             imageUrls = post.image_urls.split(',').map((url) => url.trim());
         }
     } else if (Array.isArray(post.image_urls)) {
@@ -89,7 +111,22 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
     const firstImage = imageUrls.length > 0 && imageUrls[0] ? imageUrls[0] : '/default-image.jpg';
 
     return (
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-4">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+            {/* 👤 작성자 정보 */}
+            <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center space-x-3">
+                    <Image
+                        src={avatarUrl || '/default-avatar.png'}
+                        alt="프로필"
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="text-sm font-semibold">{nickname || post.user_email}</div>
+                </div>
+            </div>
+
+            {/* 🖼 이미지 */}
             <Image
                 src={firstImage}
                 alt="게시물"
@@ -98,6 +135,8 @@ export default function PostCard({ post, onPostChange }: PostCardProps) {
                 className="w-full h-60 object-cover cursor-pointer"
                 onClick={handleImageClick}
             />
+
+            {/* ✏️ 설명 및 편집 */}
             <div className="p-4">
                 {editing ? (
                     <>
