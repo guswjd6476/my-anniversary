@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    images: {
+        domains: ['atiajmavhpdcutuohdpb.supabase.co'], // 여기에 Supabase 호스트를 추가
+    },
 };
 
 export default nextConfig;
