@@ -20,6 +20,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const { session, setSession } = useSession();
 
     const handleLogout = async () => {
+        const confirmed = window.confirm('로그아웃하시겠습니까?');
+        if (!confirmed) return;
+
         await supabase.auth.signOut();
         setSession(null);
         router.push('/');

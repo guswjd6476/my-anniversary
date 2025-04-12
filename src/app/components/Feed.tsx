@@ -62,7 +62,6 @@ export default function Feed() {
     }, [friends]);
 
     const handlePostChange = async () => {
-        // Re-fetch the posts after any changes
         const { data, error } = await supabase
             .from('posts')
             .select('*')
@@ -88,7 +87,11 @@ export default function Feed() {
                 ) : (
                     <div className="space-y-6">
                         {posts.map((post) => (
-                            <PostCard key={post.id} post={post} onPostChange={handlePostChange} />
+                            <PostCard
+                                key={post.id}
+                                post={post}
+                                onPostChange={handlePostChange}
+                            />
                         ))}
                     </div>
                 )}

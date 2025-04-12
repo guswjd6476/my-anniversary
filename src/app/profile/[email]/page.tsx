@@ -67,8 +67,7 @@ export default function Profile() {
 
     return (
         <div className="p-4 max-w-5xl mx-auto">
-            {/* 👤 프로필 영역 */}
-            <div className="flex items-center space-x-6 mb-8">
+            <div className="flex mt-4 items-center space-x-6 mb-8">
                 <Image
                     src={userInfo?.profile_image || '/default-avatar.png'}
                     alt="프로필"
@@ -82,10 +81,13 @@ export default function Profile() {
                 </div>
             </div>
 
-            {/* 🖼 게시물 그리드 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {posts.map((post) => (
-                    <PostCard key={post.id} post={post} onPostChange={fetchPosts} />
+                    <PostCard
+                        key={post.id}
+                        post={post}
+                        onPostChange={fetchPosts}
+                    />
                 ))}
             </div>
         </div>

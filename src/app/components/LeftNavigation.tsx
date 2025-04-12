@@ -67,13 +67,12 @@ export default function LeftNavigation() {
                             email: data?.email,
                             profile_image: Array.isArray(data?.profile_image)
                                 ? data?.profile_image[0]
-                                : data?.profile_image || '', // 배열 처리 추가
+                                : data?.profile_image || '',
                             nickname: data?.nickname || '이름 없음',
                         };
                     })
                 );
 
-                // null 값이 포함되지 않도록 필터링
                 setFriends(
                     friendDetails.filter((friend) => friend !== null) as {
                         id: string;
@@ -157,12 +156,11 @@ export default function LeftNavigation() {
     };
 
     const handleNavigateToFeed = (friendId: string) => {
-        // 친구의 피드로 이동
         router.push(`/profile/${friendId}`);
     };
 
     return (
-        <div className="hidden md:block w-1/4 p-4 bg-white shadow-lg rounded-xl mt-8">
+        <div className="hidden md:block w-64 p-4 bg-white shadow-lg rounded-xl mt-8">
             <input
                 type="text"
                 placeholder="친구 검색"
@@ -171,7 +169,7 @@ export default function LeftNavigation() {
                 className="p-2 border rounded-lg mb-6 w-full text-gray-700 bg-gray-100 focus:outline-none"
             />
 
-            <h3 className="font-semibold text-xl mb-3 text-gray-800">친구 목록</h3>
+            <h3 className="font-semibold  mb-3 text-gray-800">친구 목록</h3>
             <ul>
                 {friends.length > 0 ? (
                     friends.map((friend) => (
@@ -199,7 +197,7 @@ export default function LeftNavigation() {
                 )}
             </ul>
 
-            <h3 className="font-semibold text-xl mt-6 mb-3 text-gray-800">추천 친구</h3>
+            <h3 className="font-semibold  mt-6 mb-3 text-gray-800">추천 친구</h3>
             <ul>
                 {allUsers
                     .filter(
@@ -268,7 +266,7 @@ export default function LeftNavigation() {
                     ))}
             </ul>
 
-            <h3 className="font-semibold text-xl mt-6 mb-3 text-gray-800">친구 요청</h3>
+            <h3 className="font-semibold  mt-6 mb-3 text-gray-800">친구 요청</h3>
             <ul>
                 {pendingRequests.length > 0 ? (
                     pendingRequests

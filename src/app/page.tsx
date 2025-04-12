@@ -8,7 +8,7 @@ import { useSession } from './SupabaseProvider';
 import { supabase } from './lib/supabase';
 
 export default function HomePage() {
-    const { session, isLoading } = useSession(); // ✅ isLoading 가져오기
+    const { session, isLoading } = useSession();
     const router = useRouter();
     const [checkingProfile, setCheckingProfile] = useState(true);
     const didCheck = useRef(false);
@@ -39,17 +39,14 @@ export default function HomePage() {
         checkNickname();
     }, [session, router]);
 
-    // ✅ 세션 확인 중일 때 아무것도 렌더링하지 않기
     if (isLoading) {
         return <div className="p-10 text-center">세션을 확인 중입니다...</div>;
     }
 
-    // ✅ 로그인 안 됐을 경우
     if (!session) {
         return <AuthForm />;
     }
 
-    // ✅ 로그인은 됐지만 닉네임 확인 중일 경우
     if (checkingProfile) {
         return <div className="p-10 text-center">프로필 정보를 확인 중입니다...</div>;
     }
